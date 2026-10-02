@@ -1,0 +1,14 @@
+services:
+  subsync:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - subsync-data:/data
+    environment:
+      PORT: "3000"
+      SEED_SAMPLE: "1"
+    restart: unless-stopped
+
+volumes:
+  subsync-data:

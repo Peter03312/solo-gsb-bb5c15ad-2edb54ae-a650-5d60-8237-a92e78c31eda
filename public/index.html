@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>字幕校时工作台</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <h1>视频字幕校时工作台</h1>
+  <div class="meta">
+    <span>转写版本：<b id="tv">-</b></span>
+    <span>规则版本：<b id="sv">-</b></span>
+    <span>内容指纹：<b id="cv">-</b></span>
+  </div>
+</header>
+
+<div id="conflict-box" class="hidden">
+  <h3>⚠️ 规则无法同时满足 —— 未生成排片结果，现有字幕保持不变</h3>
+  <div id="conflict-list"></div>
+</div>
+
+<div id="warning-box" class="hidden">
+  <h3>🔒 已锁定字幕与当前规则不一致（未锁定部分仍已正常排片）</h3>
+  <div id="warning-list"></div>
+</div>
+
+<main>
+  <section class="card">
+    <h2>1. 导入数据</h2>
+    <p class="hint">JSON：<code>{"words":[{"start_ms":0,"end_ms":300,"text":"我们"}],"cuts":[1750]}</code>。
+      时间必须为非负整数毫秒，词段须严格递增且不重叠，切点须严格递增。切点落在词内部会在排片时报结构冲突。</p>
+    <textarea id="import-text" rows="6" placeholder='{"words":[{"start_ms":0,"end_ms":300,"text":"你好"}],"cuts":[500]}'></textarea>
+    <div class="row">
+      <button id="btn-import">导入转写与切点</button>
+      <button id="btn-reset" class="danger">清空全部</button>
+    </div>
+    <div id="import-info" class="hint"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. 排片规则</h2>
+    <div class="grid3">
+      <label>每条最大字数
+        <input type="number" id="max-chars" min="1" step="1">
+      </label>
+      <label>最短显示时长 (ms)
+        <input type="number" id="min-display" min="1" step="1">
+      </label>
+      <label>每秒最多字数 (CPS)
+        <input type="number" id="max-cps" min="0.1" step="0.1">
+      </label>
+    </div>
+    <div class="row">
+      <button id="btn-save-settings">保存规则</button>
+      <span id="settings-status" class="hint"></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. 排片与校对</h2>
+    <div class="row">
+      <button id="btn-arrange" class="primary">自动排片（仅重排未锁定字幕）</button>
+      <span id="arrange-status" class="hint"></span>
+    </div>
+    <div class="twocol">
+      <div>
+        <h3>转写词 <span class="hint" id="words-count"></span></h3>
+        <div id="words-view" class="words"></div>
+        <h3>镜头切点</h3>
+        <div id="cuts-view" class="cuts"></div>
+      </div>
+      <div>
+        <h3>字幕（🔒 = 已锁定，重排不改动）</h3>
+        <div id="cues-view" class="cues"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>4. 确认并导出 WebVTT</h2>
+    <p class="hint">导出的是确认时刻的不可变快照；之后继续修改不会影响旧文件，可随时再次下载。</p>
+    <div class="row">
+      <button id="btn-export" class="primary">确认并导出 VTT</button>
+      <span id="export-status" class="hint"></span>
+    </div>
+    <table id="exports-table">
+      <thead><tr><th>ID</th><th>文件名</th><th>条数</th><th>确认时间</th><th>内容指纹</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<div id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
